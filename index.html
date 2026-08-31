@@ -34,7 +34,7 @@
 
       <section class="mx-auto w-full max-w-md rounded-xl border border-slate-700 bg-slate-900/70 p-5">
         <h3 class="text-sm font-semibold uppercase tracking-widest text-slate-300">Cronómetro de prueba</h3>
-        <p id="timer" class="mt-2 text-3xl font-bold text-cyan-300">00:00:00</p>
+        <p id="timer" data-shared-timer-display class="mt-2 text-3xl font-bold text-cyan-300">00:00:00</p>
         <div class="mt-4 flex gap-2">
           <button id="startTimer" class="rounded-lg bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950">Iniciar</button>
           <button id="pauseTimer" class="rounded-lg border border-slate-500 px-4 py-2 text-sm">Pausar</button>
@@ -44,11 +44,10 @@
     </main>
 
     <script>
-      let elapsed = 0;
-      let start = null;
-      let interval = null;
+      const TIMER_KEY = "hciStopwatchState";
+      let timerState = { elapsedMs: 0, running: false, startedAt: null };
 
-      const timerEl = document.getElementById("timer");
+      const displays = Array.from(document.querySelectorAll("[data-shared-timer-display]"));
       const format = (ms) => {
         const total = Math.floor(ms / 1000);
         const h = String(Math.floor(total / 3600)).padStart(2, "0");
@@ -57,31 +56,56 @@
         return `${h}:${m}:${s}`;
       };
 
-      const update = () => {
-        const now = Date.now();
-        const value = elapsed + (start ? now - start : 0);
-        timerEl.textContent = format(value);
+      const readState = () => {
+        try {
+          const value = localStorage.getItem(TIMER_KEY);
+          if (!value) return { elapsedMs: 0, running: false, startedAt: null };
+          const parsed = JSON.parse(value);
+          return {
+            elapsedMs: Number(parsed.elapsedMs) || 0,
+            running: Boolean(parsed.running),
+            startedAt: parsed.startedAt ? Number(parsed.startedAt) : null
+          };
+        } catch {
+          return { elapsedMs: 0, running: false, startedAt: null };
+        }
       };
 
+      const persistState = () => localStorage.setItem(TIMER_KEY, JSON.stringify(timerState));
+      const elapsedNow = () => timerState.elapsedMs + (timerState.running && timerState.startedAt ? Date.now() - timerState.startedAt : 0);
+      const render = () => displays.forEach((node) => (node.textContent = format(elapsedNow())));
+
+      timerState = readState();
+      render();
+      setInterval(render, 250);
+
       document.getElementById("startTimer").addEventListener("click", () => {
-        if (start) return;
-        start = Date.now();
-        interval = setInterval(update, 250);
+        if (timerState.running) return;
+        timerState.startedAt = Date.now();
+        timerState.running = true;
+        persistState();
+        render();
       });
 
       document.getElementById("pauseTimer").addEventListener("click", () => {
-        if (!start) return;
-        elapsed += Date.now() - start;
-        start = null;
-        clearInterval(interval);
-        update();
+        if (!timerState.running) return;
+        timerState.elapsedMs = elapsedNow();
+        timerState.startedAt = null;
+        timerState.running = false;
+        persistState();
+        render();
       });
 
       document.getElementById("resetTimer").addEventListener("click", () => {
-        elapsed = 0;
-        start = null;
-        clearInterval(interval);
-        update();
+        timerState = { elapsedMs: 0, running: false, startedAt: null };
+        persistState();
+        render();
+      });
+
+      window.addEventListener("storage", (event) => {
+        if (event.key !== TIMER_KEY) return;
+        timerState = readState();
+        render();
       });
     </script>
   </body>

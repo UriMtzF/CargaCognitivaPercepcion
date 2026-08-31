@@ -12,7 +12,7 @@
       <header class="mt-4 rounded-2xl bg-white p-6 shadow-sm">
         <h1 class="text-2xl font-bold sm:text-3xl">Acreditación de Prácticas Profesionales y Servicio Social</h1>
         <p class="mt-2 text-slate-600">Completa la solicitud en 3 pasos. El sistema valida en tiempo real y te guía para reducir errores.</p>
-        <p class="mt-2 text-sm text-slate-500">Tiempo transcurrido: <strong id="liveTimer">00:00:00</strong></p>
+        <p class="mt-2 text-sm text-slate-500">Tiempo transcurrido: <strong id="liveTimer" data-shared-timer-display>00:00:00</strong></p>
       </header>
 
       <section class="mt-6 rounded-2xl bg-white p-6 shadow-sm">
@@ -176,20 +176,50 @@
       const nextBtn = document.getElementById("nextBtn");
       const backBtn = document.getElementById("backBtn");
       const submitBtn = document.getElementById("submitBtn");
-      const liveTimer = document.getElementById("liveTimer");
       const successModal = document.getElementById("successModal");
       const summary = document.getElementById("summary");
       const sectorError = document.getElementById("sectorError");
       const skillError = document.getElementById("skillError");
 
-      const startTime = Date.now();
-      setInterval(() => {
-        const sec = Math.floor((Date.now() - startTime) / 1000);
+      const TIMER_KEY = "hciStopwatchState";
+      let timerState = { elapsedMs: 0, running: false, startedAt: null };
+      const timerDisplays = Array.from(document.querySelectorAll("[data-shared-timer-display]"));
+      const formatTimer = (ms) => {
+        const sec = Math.floor(ms / 1000);
         const h = String(Math.floor(sec / 3600)).padStart(2, "0");
         const m = String(Math.floor((sec % 3600) / 60)).padStart(2, "0");
         const s = String(sec % 60).padStart(2, "0");
-        liveTimer.textContent = `${h}:${m}:${s}`;
-      }, 1000);
+        return `${h}:${m}:${s}`;
+      };
+      const readState = () => {
+        try {
+          const value = localStorage.getItem(TIMER_KEY);
+          if (!value) return { elapsedMs: 0, running: false, startedAt: null };
+          const parsed = JSON.parse(value);
+          return {
+            elapsedMs: Number(parsed.elapsedMs) || 0,
+            running: Boolean(parsed.running),
+            startedAt: parsed.startedAt ? Number(parsed.startedAt) : null
+          };
+        } catch {
+          return { elapsedMs: 0, running: false, startedAt: null };
+        }
+      };
+      const persistState = () => localStorage.setItem(TIMER_KEY, JSON.stringify(timerState));
+      const elapsedNow = () => timerState.elapsedMs + (timerState.running && timerState.startedAt ? Date.now() - timerState.startedAt : 0);
+      const renderTimer = () => {
+        const value = formatTimer(elapsedNow());
+        timerDisplays.forEach((node) => (node.textContent = value));
+      };
+
+      timerState = readState();
+      if (!timerState.running && timerState.elapsedMs === 0) {
+        timerState.running = true;
+        timerState.startedAt = Date.now();
+        persistState();
+      }
+      renderTimer();
+      setInterval(renderTimer, 250);
 
       let step = 0;
       const selectedSkills = new Set();
@@ -363,7 +393,7 @@
         if (!validateStep()) return;
 
         const data = Object.fromEntries(new FormData(form).entries());
-        const totalTime = liveTimer.textContent;
+        const totalTime = formatTimer(elapsedNow());
         summary.innerHTML = `
           <ul class="space-y-1">
             <li><strong>Alumno:</strong> ${data.nombre} (${data.matricula})</li>
