@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Legacy | Acreditación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body { font-size: 11px; color: #666; background: #f3f3f3; }
+      .legacy-wrap { max-width: 780px; margin: 14px auto; background: #fff; padding: 8px; }
+      .legacy-field { margin: 2px 0 14px; }
+      .legacy-field.right label { margin-left: 22px; }
+      .legacy-field.right input, .legacy-field.right select, .legacy-field.right textarea { margin-right: 20px; }
+      label { display: block; margin-bottom: 7px; }
+      input, select, textarea { width: 100%; border: 1px solid #d1d1d1; padding: 4px; font-size: 11px; }
+      textarea { min-height: 42px; }
+      .actions { display: flex; gap: 0; margin-top: 8px; }
+      .actions button { flex: 1; border: 1px solid #a3a3a3; background: #b6b6b6; color: #444; padding: 7px 6px; }
+    </style>
+  </head>
+  <body>
+    <div class="legacy-wrap">
+      <a href="index.html">← Regresar</a>
+      <h1 style="font-size:12px;margin:6px 0 10px;">Solicitud de Acreditación (Formulario Tradicional)</h1>
+      <form id="legacyForm" novalidate>
+        <div class="legacy-field"><input required type="text" name="nombre" /><label>Nombre completo</label></div>
+        <div class="legacy-field right"><label>Matrícula</label><input required type="text" name="matricula" /></div>
+        <div class="legacy-field"><input required type="text" name="correo" /><label>Correo institucional</label></div>
+        <div class="legacy-field right"><label>Teléfono</label><input required type="text" name="telefono" /></div>
+        <div class="legacy-field"><input required type="text" name="curp" /><label>CURP</label></div>
+        <div class="legacy-field right"><label>RFC con homoclave</label><input required type="text" name="rfc_h" /></div>
+        <div class="legacy-field"><input required type="text" name="domicilio" /><label>Domicilio actual</label></div>
+        <div class="legacy-field right"><label>Ciudad</label><input required type="text" name="ciudad" /></div>
+        <div class="legacy-field"><input required type="text" name="estado" /><label>Estado</label></div>
+        <div class="legacy-field right"><label>Promedio general</label><input required type="text" name="promedio" /></div>
+        <div class="legacy-field"><input required type="text" name="creditos" /><label>Créditos aprobados</label></div>
+        <div class="legacy-field right"><label>Semestre actual</label><input required type="text" name="semestre" /></div>
+        <div class="legacy-field"><input required type="text" name="empresa" /><label>Nombre de la empresa</label></div>
+        <div class="legacy-field right"><label>Razón social</label><input required type="text" name="razon" /></div>
+        <div class="legacy-field"><input required type="text" name="giro" /><label>Giro de la empresa</label></div>
+        <div class="legacy-field right"><label>Sector</label><input required type="text" name="sector" /></div>
+        <div class="legacy-field"><input required type="text" name="cct" /><label>Clave CCT de la empresa</label></div>
+        <div class="legacy-field right"><label>Coordenadas UTM de la sede</label><input required type="text" name="utm" /></div>
+        <div class="legacy-field"><input required type="text" name="supervisor" /><label>Nombre del supervisor</label></div>
+        <div class="legacy-field right"><label>Puesto del supervisor</label><input required type="text" name="puesto_supervisor" /></div>
+        <div class="legacy-field"><input required type="text" name="email_supervisor" /><label>Email del supervisor</label></div>
+        <div class="legacy-field right"><label>Tel. del supervisor</label><input required type="text" name="tel_supervisor" /></div>
+        <div class="legacy-field"><input required type="text" name="fecha_inicio" /><label>Fecha inicio (ddmmaaaa)</label></div>
+        <div class="legacy-field right"><label>Fecha término (ddmmaaaa)</label><input required type="text" name="fecha_fin" /></div>
+        <div class="legacy-field"><input required type="text" name="horas_hhmmss" /><label>Horas acumuladas HH:MM:SS</label></div>
+        <div class="legacy-field right"><label>Modalidad</label><input required type="text" name="modalidad" /></div>
+        <div class="legacy-field"><input required type="text" name="proyecto" /><label>Nombre del proyecto</label></div>
+        <div class="legacy-field right"><label>Objetivo general</label><textarea required name="objetivo"></textarea></div>
+        <div class="legacy-field"><textarea required name="actividades"></textarea><label>Actividades realizadas</label></div>
+        <div class="legacy-field right"><label>Resultados</label><textarea required name="resultados"></textarea></div>
+        <div class="legacy-field"><input required type="text" name="herramientas" /><label>Herramientas usadas</label></div>
+        <div class="legacy-field right"><label>Calificación autoevaluación</label><input required type="text" name="autoeval" /></div>
+        <div class="legacy-field"><input required type="text" name="idioma" /><label>Idioma de reporte</label></div>
+        <div class="legacy-field right"><label>No. de convenio</label><input required type="text" name="convenio" /></div>
+        <div class="legacy-field"><input required type="text" name="periodo" /><label>Periodo académico</label></div>
+        <div class="legacy-field right"><label>Código postal de la empresa</label><input required type="text" name="cp_empresa" /></div>
+        <div class="legacy-field"><label>Materia/Tecnología principal (selección desordenada)</label>
+          <select required name="materia">
+            <option value="">Selecciona una</option>
+            <option>Álgebra lineal</option><option>AWS</option><option>Arquitectura de computadoras</option><option>Azure</option><option>Base de datos I</option><option>Bioinformática</option><option>Blockchain</option><option>Cálculo I</option><option>Cálculo II</option><option>Ciberseguridad</option><option>Cloud Native</option><option>Compiladores</option><option>DevOps</option><option>Docker</option><option>Electrónica digital</option><option>Figma</option><option>Física</option><option>Go</option><option>HCI</option><option>Inglés técnico</option><option>Inteligencia artificial</option><option>IoT</option><option>Java</option><option>JavaScript</option><option>Kubernetes</option><option>Linux</option><option>Machine Learning</option><option>Matemáticas discretas</option><option>Metodologías ágiles</option><option>Minería de datos</option><option>Modelado UML</option><option>MySQL</option><option>Node.js</option><option>NoSQL</option><option>POO</option><option>Probabilidad</option><option>Python</option><option>React</option><option>Redes I</option><option>Redes II</option><option>Seguridad ofensiva</option><option>Sistemas distribuidos</option><option>Sistemas embebidos</option><option>Sistemas operativos</option><option>SQL Server</option><option>Tailwind CSS</option><option>Teoría de autómatas</option><option>Testing</option><option>UX Writing</option><option>Visión por computadora</option>
+          </select>
+        </div>
+        <div class="legacy-field right"><label>No. de seguro facultativo</label><input required type="text" name="seguro" /></div>
+        <div class="legacy-field"><input required type="text" name="contacto_emergencia" /><label>Contacto de emergencia</label></div>
+        <div class="legacy-field right"><label>Teléfono de emergencia</label><input required type="text" name="tel_emergencia" /></div>
+
+        <div class="actions">
+          <button type="button" id="clearBtn">Limpiar Formulario</button><button type="button" id="saveBtn">Guardar Borrador</button><button type="submit">Enviar Solicitud</button>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      const form = document.getElementById("legacyForm");
+
+      document.getElementById("clearBtn").addEventListener("click", () => form.reset());
+      document.getElementById("saveBtn").addEventListener("click", () => alert("Borrador guardado"));
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const controls = form.querySelectorAll("input[required], textarea[required], select[required]");
+        const hasEmpty = Array.from(controls).some((field) => !field.value.trim());
+        if (hasEmpty) {
+          alert("Error en formulario");
+          return;
+        }
+        alert("Solicitud enviada");
+      });
+    </script>
+  </body>
+</html>

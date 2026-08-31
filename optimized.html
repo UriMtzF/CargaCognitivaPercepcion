@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Optimizado HCI | Acreditación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="min-h-screen bg-slate-100 text-slate-900">
+    <main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+      <a href="index.html" class="inline-flex items-center text-sm font-medium text-blue-700 hover:underline">← Regresar al hub</a>
+      <header class="mt-4 rounded-2xl bg-white p-6 shadow-sm">
+        <h1 class="text-2xl font-bold sm:text-3xl">Acreditación de Prácticas Profesionales y Servicio Social</h1>
+        <p class="mt-2 text-slate-600">Completa la solicitud en 3 pasos. El sistema valida en tiempo real y te guía para reducir errores.</p>
+        <p class="mt-2 text-sm text-slate-500">Tiempo transcurrido: <strong id="liveTimer">00:00:00</strong></p>
+      </header>
+
+      <section class="mt-6 rounded-2xl bg-white p-6 shadow-sm">
+        <ol class="grid gap-3 sm:grid-cols-3" id="stepIndicators">
+          <li class="step-indicator rounded-xl border p-3 text-sm font-semibold" data-step="0">1. Datos del Alumno</li>
+          <li class="step-indicator rounded-xl border p-3 text-sm font-semibold" data-step="1">2. Empresa / Proyecto</li>
+          <li class="step-indicator rounded-xl border p-3 text-sm font-semibold" data-step="2">3. Horas y Actividades</li>
+        </ol>
+        <div class="mt-4 h-2 overflow-hidden rounded-full bg-slate-200"><div id="progressBar" class="h-full w-1/3 bg-blue-600 transition-all"></div></div>
+
+        <form id="wizardForm" class="mt-6" novalidate>
+          <section data-panel="0" class="space-y-4">
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label class="mb-1 block text-sm font-medium">Nombre completo</label>
+                <input data-validate="required" autocomplete="name" name="nombre" class="w-full rounded-lg border border-slate-300 px-3 py-2" />
+                <p class="mt-1 text-xs text-red-600 hidden"></p>
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium">Matrícula</label>
+                <input data-validate="matricula" autocomplete="off" name="matricula" class="w-full rounded-lg border border-slate-300 px-3 py-2" />
+                <p class="mt-1 text-xs text-red-600 hidden"></p>
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium">Correo institucional</label>
+                <input data-validate="email" autocomplete="email" name="correo" class="w-full rounded-lg border border-slate-300 px-3 py-2" />
+                <p class="mt-1 text-xs text-red-600 hidden"></p>
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium">Teléfono</label>
+                <input data-validate="telefono" autocomplete="tel" name="telefono" class="w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="000-000-0000" />
+                <p class="mt-1 text-xs text-red-600 hidden"></p>
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium">CURP</label>
+                <input data-validate="curp" autocomplete="off" name="curp" class="w-full rounded-lg border border-slate-300 px-3 py-2 uppercase" maxlength="18" />
+                <p class="mt-1 text-xs text-red-600 hidden"></p>
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium">Fecha de nacimiento</label>
+                <input data-validate="fecha" autocomplete="bday" name="fecha_nacimiento" class="w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="DD/MM/AAAA" maxlength="10" />
+                <p class="mt-1 text-xs text-red-600 hidden"></p>
+              </div>
+            </div>
+          </section>
+
+          <section data-panel="1" class="hidden space-y-4">
+            <div>
+              <p class="mb-2 text-sm font-medium">Tipo de organización</p>
+              <div class="grid gap-3 sm:grid-cols-3" id="sectorCards">
+                <label class="sector-card cursor-pointer rounded-xl border border-slate-300 p-4">
+                  <input type="radio" name="sector" class="peer sr-only" value="publico" />
+                  <span class="block text-xl">🏛️</span><span class="mt-1 block font-semibold">Sector Público</span>
+                </label>
+                <label class="sector-card cursor-pointer rounded-xl border border-slate-300 p-4">
+                  <input type="radio" name="sector" class="peer sr-only" value="privado" />
+                  <span class="block text-xl">🏢</span><span class="mt-1 block font-semibold">Sector Privado</span>
+                </label>
+                <label class="sector-card cursor-pointer rounded-xl border border-slate-300 p-4">
+                  <input type="radio" name="sector" class="peer sr-only" value="social" />
+                  <span class="block text-xl">🤝</span><span class="mt-1 block font-semibold">OSC / Social</span>
+                </label>
+              </div>
+              <p id="sectorError" class="mt-1 text-xs text-red-600 hidden">Selecciona un tipo de organización.</p>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label class="mb-1 block text-sm font-medium">Nombre de la organización</label>
+                <input data-validate="required" name="empresa" class="w-full rounded-lg border border-slate-300 px-3 py-2" />
+                <p class="mt-1 text-xs text-red-600 hidden"></p>
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium">Proyecto asignado</label>
+                <input data-validate="required" name="proyecto" class="w-full rounded-lg border border-slate-300 px-3 py-2" />
+                <p class="mt-1 text-xs text-red-600 hidden"></p>
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium">Nombre del supervisor</label>
+                <input data-validate="required" name="supervisor" class="w-full rounded-lg border border-slate-300 px-3 py-2" />
+                <p class="mt-1 text-xs text-red-600 hidden"></p>
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium">Correo del supervisor</label>
+                <input data-validate="email" name="correo_supervisor" class="w-full rounded-lg border border-slate-300 px-3 py-2" />
+                <p class="mt-1 text-xs text-red-600 hidden"></p>
+              </div>
+            </div>
+
+            <div id="fiscalFields" class="grid gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-2">
+              <div>
+                <label class="mb-1 block text-sm font-medium">RFC fiscal</label>
+                <input data-validate="rfc" name="rfc_fiscal" class="w-full rounded-lg border border-slate-300 px-3 py-2 uppercase" />
+                <p class="mt-1 text-xs text-red-600 hidden"></p>
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium">Dirección de facturación</label>
+                <input data-validate="required" name="direccion_fiscal" class="w-full rounded-lg border border-slate-300 px-3 py-2" />
+                <p class="mt-1 text-xs text-red-600 hidden"></p>
+              </div>
+            </div>
+          </section>
+
+          <section data-panel="2" class="hidden space-y-4">
+            <div class="grid gap-4 sm:grid-cols-3">
+              <div>
+                <label class="mb-1 block text-sm font-medium">Fecha de inicio</label>
+                <input data-validate="fecha" name="inicio" class="w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="DD/MM/AAAA" maxlength="10" />
+                <p class="mt-1 text-xs text-red-600 hidden"></p>
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium">Fecha de término</label>
+                <input data-validate="fecha" name="fin" class="w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="DD/MM/AAAA" maxlength="10" />
+                <p class="mt-1 text-xs text-red-600 hidden"></p>
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium">Horas acumuladas</label>
+                <input data-validate="horas" name="horas" class="w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="000" maxlength="3" />
+                <p class="mt-1 text-xs text-red-600 hidden"></p>
+              </div>
+            </div>
+
+            <div>
+              <label class="mb-1 block text-sm font-medium">Actividades principales</label>
+              <textarea data-validate="required" name="actividades" class="w-full rounded-lg border border-slate-300 px-3 py-2" rows="3"></textarea>
+              <p class="mt-1 text-xs text-red-600 hidden"></p>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 p-4">
+              <label class="mb-2 block text-sm font-medium">Tecnologías / Skills (con búsqueda y chips)</label>
+              <input id="skillSearch" class="w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="Escribe para buscar (ej. React, Python, SQL)" />
+              <div id="skillSuggestions" class="mt-2 flex max-h-28 flex-wrap gap-2 overflow-y-auto"></div>
+              <div class="mt-3" id="skillChips"></div>
+              <p id="skillError" class="mt-1 text-xs text-red-600 hidden">Agrega al menos una tecnología.</p>
+            </div>
+          </section>
+
+          <div class="mt-8 flex flex-wrap justify-between gap-3">
+            <button type="button" id="backBtn" class="rounded-lg border border-slate-400 px-5 py-2 font-medium text-slate-700">Atrás</button>
+            <button type="button" id="nextBtn" class="rounded-lg bg-blue-600 px-5 py-2 font-semibold text-white hover:bg-blue-700">Siguiente</button>
+            <button type="submit" id="submitBtn" class="hidden rounded-lg bg-emerald-600 px-5 py-2 font-semibold text-white hover:bg-emerald-700">Enviar solicitud</button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <div id="successModal" class="fixed inset-0 hidden items-center justify-center bg-slate-900/70 p-4">
+      <div class="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl animate-[bounceIn_.35s_ease-out]" style="animation-name: zoom;">
+        <h2 class="text-2xl font-bold text-emerald-700">✅ Solicitud enviada</h2>
+        <p class="mt-2 text-slate-600">Resumen de la captura:</p>
+        <div id="summary" class="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-700"></div>
+        <button id="closeModal" class="mt-5 rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white">Cerrar</button>
+      </div>
+    </div>
+
+    <script>
+      const form = document.getElementById("wizardForm");
+      const panels = Array.from(document.querySelectorAll("[data-panel]"));
+      const indicators = Array.from(document.querySelectorAll(".step-indicator"));
+      const progressBar = document.getElementById("progressBar");
+      const nextBtn = document.getElementById("nextBtn");
+      const backBtn = document.getElementById("backBtn");
+      const submitBtn = document.getElementById("submitBtn");
+      const liveTimer = document.getElementById("liveTimer");
+      const successModal = document.getElementById("successModal");
+      const summary = document.getElementById("summary");
+      const sectorError = document.getElementById("sectorError");
+      const skillError = document.getElementById("skillError");
+
+      const startTime = Date.now();
+      setInterval(() => {
+        const sec = Math.floor((Date.now() - startTime) / 1000);
+        const h = String(Math.floor(sec / 3600)).padStart(2, "0");
+        const m = String(Math.floor((sec % 3600) / 60)).padStart(2, "0");
+        const s = String(sec % 60).padStart(2, "0");
+        liveTimer.textContent = `${h}:${m}:${s}`;
+      }, 1000);
+
+      let step = 0;
+      const selectedSkills = new Set();
+      const skillPool = ["C", "C++", "CSS", "Docker", "Figma", "Git", "Java", "JavaScript", "Kubernetes", "Node.js", "Python", "React", "SQL", "Tailwind", "TypeScript", "UX Research"];
+
+      const validationMap = {
+        required: (v) => v.trim().length > 0 || "Este campo es obligatorio.",
+        email: (v) => /.+@.+\..+/.test(v) || "Ingresa un correo válido.",
+        matricula: (v) => /^\d{8,10}$/.test(v) || "Usa entre 8 y 10 dígitos.",
+        telefono: (v) => /^\d{3}-\d{3}-\d{4}$/.test(v) || "Formato esperado: 000-000-0000.",
+        curp: (v) => /^[A-Z]{4}\d{6}[A-Z]{6}\d{2}$/.test(v) || "Formato CURP inválido.",
+        fecha: (v) => /^\d{2}\/\d{2}\/\d{4}$/.test(v) || "Formato esperado: DD/MM/AAAA.",
+        horas: (v) => /^\d{1,3}$/.test(v) || "Ingresa horas numéricas (0-999).",
+        rfc: (v) => /^([A-ZÑ&]{3,4})\d{6}[A-Z0-9]{3}$/.test(v) || "Formato RFC inválido."
+      };
+
+      const applyMask = (input) => {
+        if (input.name === "telefono") {
+          const digits = input.value.replace(/\D/g, "").slice(0, 10);
+          const p1 = digits.slice(0, 3);
+          const p2 = digits.slice(3, 6);
+          const p3 = digits.slice(6, 10);
+          input.value = [p1, p2, p3].filter(Boolean).join("-");
+        }
+        if (["fecha_nacimiento", "inicio", "fin"].includes(input.name)) {
+          const digits = input.value.replace(/\D/g, "").slice(0, 8);
+          const p1 = digits.slice(0, 2);
+          const p2 = digits.slice(2, 4);
+          const p3 = digits.slice(4, 8);
+          input.value = [p1, p2, p3].filter(Boolean).join("/");
+        }
+        if (["curp", "rfc_fiscal"].includes(input.name)) {
+          input.value = input.value.toUpperCase();
+        }
+        if (input.name === "horas") {
+          input.value = input.value.replace(/\D/g, "").slice(0, 3);
+        }
+      };
+
+      const setState = (input, ok, message = "") => {
+        const help = input.parentElement.querySelector("p");
+        input.classList.remove("border-red-500", "border-emerald-500");
+        help.classList.add("hidden");
+        if (ok) {
+          input.classList.add("border-emerald-500");
+          return true;
+        }
+        input.classList.add("border-red-500");
+        help.textContent = message;
+        help.classList.remove("hidden");
+        return false;
+      };
+
+      const validateInput = (input) => {
+        if (input.disabled) return true;
+        const rule = input.dataset.validate;
+        if (!rule) return true;
+        const result = validationMap[rule](input.value || "");
+        if (result === true) return setState(input, true);
+        return setState(input, false, result);
+      };
+
+      const validateStep = () => {
+        const currentPanel = panels[step];
+        const fields = Array.from(currentPanel.querySelectorAll("[data-validate]")).filter((field) => !field.disabled);
+        let valid = fields.every(validateInput);
+
+        if (step === 1) {
+          const sectorSelected = form.querySelector("input[name='sector']:checked");
+          sectorError.classList.toggle("hidden", !!sectorSelected);
+          valid = valid && !!sectorSelected;
+        }
+
+        if (step === 2) {
+          const hasSkill = selectedSkills.size > 0;
+          skillError.classList.toggle("hidden", hasSkill);
+          valid = valid && hasSkill;
+        }
+
+        return valid;
+      };
+
+      const updateUI = () => {
+        panels.forEach((panel, i) => panel.classList.toggle("hidden", i !== step));
+        indicators.forEach((indicator, i) => {
+          const active = i === step;
+          indicator.classList.toggle("bg-blue-50", active);
+          indicator.classList.toggle("border-blue-500", active);
+          indicator.classList.toggle("text-blue-700", active);
+          if (!active) indicator.classList.remove("bg-blue-50", "border-blue-500", "text-blue-700");
+        });
+        progressBar.style.width = `${((step + 1) / panels.length) * 100}%`;
+        backBtn.classList.toggle("invisible", step === 0);
+        nextBtn.classList.toggle("hidden", step === panels.length - 1);
+        submitBtn.classList.toggle("hidden", step !== panels.length - 1);
+      };
+
+      const fiscalFields = document.getElementById("fiscalFields");
+      document.getElementById("sectorCards").addEventListener("change", (event) => {
+        if (event.target.name !== "sector") return;
+        const sector = event.target.value;
+        document.querySelectorAll(".sector-card").forEach((card) => card.classList.remove("border-blue-600", "bg-blue-50"));
+        event.target.closest(".sector-card").classList.add("border-blue-600", "bg-blue-50");
+
+        const hideFiscal = sector === "publico";
+        fiscalFields.classList.toggle("hidden", hideFiscal);
+        fiscalFields.querySelectorAll("input").forEach((input) => {
+          input.disabled = hideFiscal;
+          if (hideFiscal) {
+            input.value = "";
+            setState(input, true);
+          }
+        });
+      });
+
+      const skillSearch = document.getElementById("skillSearch");
+      const skillSuggestions = document.getElementById("skillSuggestions");
+      const skillChips = document.getElementById("skillChips");
+
+      const renderSkills = (term = "") => {
+        const q = term.toLowerCase();
+        const suggestions = skillPool.filter((skill) => skill.toLowerCase().includes(q) && !selectedSkills.has(skill));
+        skillSuggestions.innerHTML = suggestions
+          .map((skill) => `<button type="button" class="rounded-full bg-slate-200 px-3 py-1 text-xs hover:bg-slate-300" data-skill="${skill}">${skill}</button>`)
+          .join("");
+
+        skillChips.innerHTML = Array.from(selectedSkills)
+          .map((skill) => `<span class="mr-2 inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800">${skill}<button type="button" class="ml-2 font-bold" data-remove="${skill}">×</button></span>`)
+          .join("") || '<p class="text-sm text-slate-500">Aún no agregas tecnologías.</p>';
+      };
+
+      skillSearch.addEventListener("input", () => renderSkills(skillSearch.value));
+
+      skillSuggestions.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-skill]");
+        if (!button) return;
+        selectedSkills.add(button.dataset.skill);
+        skillSearch.value = "";
+        renderSkills();
+        skillError.classList.add("hidden");
+      });
+
+      skillChips.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-remove]");
+        if (!button) return;
+        selectedSkills.delete(button.dataset.remove);
+        renderSkills(skillSearch.value);
+      });
+
+      nextBtn.addEventListener("click", () => {
+        if (!validateStep()) return;
+        step += 1;
+        updateUI();
+      });
+
+      backBtn.addEventListener("click", () => {
+        step -= 1;
+        updateUI();
+      });
+
+      form.querySelectorAll("[data-validate]").forEach((input) => {
+        input.addEventListener("input", () => {
+          applyMask(input);
+          validateInput(input);
+        });
+        input.addEventListener("blur", () => validateInput(input));
+      });
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        if (!validateStep()) return;
+
+        const data = Object.fromEntries(new FormData(form).entries());
+        const totalTime = liveTimer.textContent;
+        summary.innerHTML = `
+          <ul class="space-y-1">
+            <li><strong>Alumno:</strong> ${data.nombre} (${data.matricula})</li>
+            <li><strong>Contacto:</strong> ${data.correo} · ${data.telefono}</li>
+            <li><strong>Sector:</strong> ${data.sector || "No indicado"}</li>
+            <li><strong>Empresa/Proyecto:</strong> ${data.empresa} - ${data.proyecto}</li>
+            <li><strong>Periodo:</strong> ${data.inicio} a ${data.fin}</li>
+            <li><strong>Horas:</strong> ${data.horas}</li>
+            <li><strong>Tecnologías:</strong> ${Array.from(selectedSkills).join(", ")}</li>
+            <li><strong>Tiempo total:</strong> ${totalTime}</li>
+          </ul>
+        `;
+
+        successModal.classList.remove("hidden");
+        successModal.classList.add("flex");
+      });
+
+      document.getElementById("closeModal").addEventListener("click", () => {
+        successModal.classList.add("hidden");
+        successModal.classList.remove("flex");
+      });
+
+      updateUI();
+      renderSkills();
+    </script>
+  </body>
+</html>
