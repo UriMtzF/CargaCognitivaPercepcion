@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema de Acreditación | Hub de Usabilidad</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="min-h-screen bg-slate-950 text-slate-100">
+    <main class="mx-auto flex min-h-screen max-w-6xl flex-col justify-center px-6 py-10">
+      <section class="mb-8 text-center">
+        <p class="mb-3 inline-flex rounded-full border border-cyan-400/50 bg-cyan-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-cyan-200">Ejercicio HCI</p>
+        <h1 class="text-3xl font-bold sm:text-4xl">Sistema de Acreditación de Prácticas Profesionales y Servicio Social</h1>
+        <p class="mx-auto mt-4 max-w-3xl text-slate-300">
+          Este prototipo compara dos enfoques de formulario: una versión legacy con alta carga cognitiva y una versión optimizada basada en principios de Interacción Humano-Computadora.
+        </p>
+      </section>
+
+      <section class="mb-10 grid gap-6 md:grid-cols-2">
+        <a href="legacy.html" class="group rounded-2xl border border-slate-700 bg-slate-900 p-8 transition hover:-translate-y-1 hover:border-rose-400 hover:shadow-xl hover:shadow-rose-500/20">
+          <p class="text-xs uppercase tracking-[0.2em] text-rose-300">Experimento A</p>
+          <h2 class="mt-3 text-2xl font-semibold text-white">Versión A: Formulario Tradicional (Legacy)</h2>
+          <p class="mt-3 text-slate-300">Interfaz deliberadamente hostil: mayor fricción, baja claridad y alto esfuerzo mental.</p>
+          <span class="mt-6 inline-block text-sm font-medium text-rose-300 group-hover:text-rose-200">Abrir versión legacy →</span>
+        </a>
+
+        <a href="optimized.html" class="group rounded-2xl border border-slate-700 bg-slate-900 p-8 transition hover:-translate-y-1 hover:border-emerald-400 hover:shadow-xl hover:shadow-emerald-500/20">
+          <p class="text-xs uppercase tracking-[0.2em] text-emerald-300">Experimento B</p>
+          <h2 class="mt-3 text-2xl font-semibold text-white">Versión B: Formulario Optimizado (HCI)</h2>
+          <p class="mt-3 text-slate-300">Proceso por pasos, validación inmediata y feedback contextual para reducir errores.</p>
+          <span class="mt-6 inline-block text-sm font-medium text-emerald-300 group-hover:text-emerald-200">Abrir versión optimizada →</span>
+        </a>
+      </section>
+
+      <section class="mx-auto w-full max-w-md rounded-xl border border-slate-700 bg-slate-900/70 p-5">
+        <h3 class="text-sm font-semibold uppercase tracking-widest text-slate-300">Cronómetro de prueba</h3>
+        <p id="timer" data-shared-timer-display class="mt-2 text-3xl font-bold text-cyan-300">00:00:00</p>
+        <div class="mt-4 flex gap-2">
+          <button id="startTimer" class="rounded-lg bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950">Iniciar</button>
+          <button id="pauseTimer" class="rounded-lg border border-slate-500 px-4 py-2 text-sm">Pausar</button>
+          <button id="resetTimer" class="rounded-lg border border-slate-500 px-4 py-2 text-sm">Reiniciar</button>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const TIMER_KEY = "hciStopwatchState";
+      let timerState = { elapsedMs: 0, running: false, startedAt: null };
+
+      const displays = Array.from(document.querySelectorAll("[data-shared-timer-display]"));
+      const format = (ms) => {
+        const total = Math.floor(ms / 1000);
+        const h = String(Math.floor(total / 3600)).padStart(2, "0");
+        const m = String(Math.floor((total % 3600) / 60)).padStart(2, "0");
+        const s = String(total % 60).padStart(2, "0");
+        return `${h}:${m}:${s}`;
+      };
+
+      const readState = () => {
+        try {
+          const value = localStorage.getItem(TIMER_KEY);
+          if (!value) return { elapsedMs: 0, running: false, startedAt: null };
+          const parsed = JSON.parse(value);
+          return {
+            elapsedMs: Number(parsed.elapsedMs) || 0,
+            running: Boolean(parsed.running),
+            startedAt: parsed.startedAt ? Number(parsed.startedAt) : null
+          };
+        } catch {
+          return { elapsedMs: 0, running: false, startedAt: null };
+        }
+      };
+
+      const persistState = () => localStorage.setItem(TIMER_KEY, JSON.stringify(timerState));
+      const elapsedNow = () => timerState.elapsedMs + (timerState.running && timerState.startedAt ? Date.now() - timerState.startedAt : 0);
+      const render = () => displays.forEach((node) => (node.textContent = format(elapsedNow())));
+
+      timerState = readState();
+      render();
+      setInterval(render, 250);
+
+      document.getElementById("startTimer").addEventListener("click", () => {
+        if (timerState.running) return;
+        timerState.startedAt = Date.now();
+        timerState.running = true;
+        persistState();
+        render();
+      });
+
+      document.getElementById("pauseTimer").addEventListener("click", () => {
+        if (!timerState.running) return;
+        timerState.elapsedMs = elapsedNow();
+        timerState.startedAt = null;
+        timerState.running = false;
+        persistState();
+        render();
+      });
+
+      document.getElementById("resetTimer").addEventListener("click", () => {
+        timerState = { elapsedMs: 0, running: false, startedAt: null };
+        persistState();
+        render();
+      });
+
+      window.addEventListener("storage", (event) => {
+        if (event.key !== TIMER_KEY) return;
+        timerState = readState();
+        render();
+      });
+    </script>
+  </body>
+</html>
